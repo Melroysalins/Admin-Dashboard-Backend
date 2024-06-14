@@ -19,7 +19,7 @@ const storeSchema = new mongoose.Schema(
       },
     },
     address: {
-      type: String,
+      type: Array,
       required: true,
     },
     rating: {
@@ -51,6 +51,26 @@ const storeSchema = new mongoose.Schema(
       url: {
         type: String,
       },
+    },
+    OfferBanner: {
+      public_id: {
+        type: String,
+      },
+      url: {
+        type: String,
+      },
+      storeID: {
+        type: Schema.Types.ObjectId,
+        ref: "Admin",
+      },
+    },
+    availability: {
+      open: {
+        type: Boolean,
+      },
+    },
+    restauranttype: {
+      type: String,
     },
   },
 

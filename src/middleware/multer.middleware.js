@@ -9,4 +9,5 @@ export const Singleupload = multer({ storage }).fields([
   { name: "logo", maxCount: 1 },
   { name: "image", maxCount: 1 },
   { name: "Pimage", maxCount: 1 },
+  { name: "OfferBanner", maxCount: 1 },
 ]);

@@ -19,8 +19,21 @@ const adminStore = asyncHandler(async (req, res) => {
       offer,
     } = req.body;
 
+    const parsedAddress = JSON.parse(address);
+
     let fileUrl = null;
     let logoUrl = null;
+    let offerUrl = null;
+
+    const storepresent = await Store.find({ storeID: storeID });
+
+    console.log("the Store--->", storepresent);
+
+    if (storepresent.length) {
+      return res.status(403).send({
+        message: "Store is created for current store ID",
+      });
+    }
 
     if (req.files) {
       const uploadPromises = [];
@@ -52,12 +65,25 @@ const adminStore = asyncHandler(async (req, res) => {
           );
         }
       }
+      if (req.files.OfferBanner) {
+        const logoURI = getdataURI(req.files.OfferBanner[0]);
+        if (logoURI) {
+          uploadPromises.push(
+            uploadStream(logoURI).then((mycloudLogo) => {
+              offerUrl = {
+                public_id: mycloudLogo.public_id,
+                url: mycloudLogo.secure_url,
+              };
+            })
+          );
+        }
+      }
 
       await Promise.all(uploadPromises);
     }
 
     if (
-      [storename, address, deliveryTime, openTime, closeTime].some(
+      [storename, deliveryTime, openTime, closeTime].some(
         (field) => field?.trim() === ""
       )
     ) {
@@ -69,13 +95,14 @@ const adminStore = asyncHandler(async (req, res) => {
     const store = await Store.create({
       storename,
       storeID,
-      address,
+      address: parsedAddress,
       deliveryTime,
       closeTime,
       openTime,
       offer,
       file: fileUrl, // This will be null if no image is provided
-      logo: logoUrl, // This will be null if no logo is provided
+      logo: logoUrl,
+      OfferBanner: offerUrl, // This will be null if no logo is provided
     });
 
     if (!store) {
@@ -134,6 +161,7 @@ const updateStore = asyncHandler(async (req, res) => {
 
     let fileUrl = null;
     let logoUrl = null;
+    let offerUrl = null;
 
     if (req.files) {
       const uploadPromises = [];
@@ -165,6 +193,19 @@ const updateStore = asyncHandler(async (req, res) => {
           );
         }
       }
+      if (req.files.OfferBanner) {
+        const logoURI = getdataURI(req.files.OfferBanner[0]);
+        if (logoURI) {
+          uploadPromises.push(
+            uploadStream(logoURI).then((mycloudLogo) => {
+              offerUrl = {
+                public_id: mycloudLogo.public_id,
+                url: mycloudLogo.secure_url,
+              };
+            })
+          );
+        }
+      }
 
       await Promise.all(uploadPromises);
     }
@@ -182,6 +223,7 @@ const updateStore = asyncHandler(async (req, res) => {
       storeExist.offer = offer || storeExist.offer;
       storeExist.file = fileUrl || storeExist.file;
       storeExist.logo = logoUrl || storeExist.logo;
+      storeExist.OfferBanner = offerUrl;
 
       await storeExist.save();
     }
