@@ -17,13 +17,14 @@ const adminStore = asyncHandler(async (req, res) => {
       closeTime,
       storeID,
       offer,
+      restauranttype,
+      cuisine,
     } = req.body;
 
     const parsedAddress = JSON.parse(address);
 
     let fileUrl = null;
     let logoUrl = null;
-    let offerUrl = null;
 
     const storepresent = await Store.find({ storeID: storeID });
 
@@ -65,19 +66,6 @@ const adminStore = asyncHandler(async (req, res) => {
           );
         }
       }
-      if (req.files.OfferBanner) {
-        const logoURI = getdataURI(req.files.OfferBanner[0]);
-        if (logoURI) {
-          uploadPromises.push(
-            uploadStream(logoURI).then((mycloudLogo) => {
-              offerUrl = {
-                public_id: mycloudLogo.public_id,
-                url: mycloudLogo.secure_url,
-              };
-            })
-          );
-        }
-      }
 
       await Promise.all(uploadPromises);
     }
@@ -102,7 +90,9 @@ const adminStore = asyncHandler(async (req, res) => {
       offer,
       file: fileUrl, // This will be null if no image is provided
       logo: logoUrl,
-      OfferBanner: offerUrl, // This will be null if no logo is provided
+      restauranttype,
+      cuisine,
+      // This will be null if no logo is provided
     });
 
     if (!store) {
@@ -157,6 +147,8 @@ const updateStore = asyncHandler(async (req, res) => {
       closeTime,
       storeID,
       offer,
+      restauranttype,
+      cuisine,
     } = req.body;
 
     let fileUrl = null;
@@ -223,7 +215,8 @@ const updateStore = asyncHandler(async (req, res) => {
       storeExist.offer = offer || storeExist.offer;
       storeExist.file = fileUrl || storeExist.file;
       storeExist.logo = logoUrl || storeExist.logo;
-      storeExist.OfferBanner = offerUrl;
+      storeExist.restauranttype = restauranttype || storeExist.restauranttype;
+      storeExist.cuisine = cuisine || storeExist.cuisine;
 
       await storeExist.save();
     }

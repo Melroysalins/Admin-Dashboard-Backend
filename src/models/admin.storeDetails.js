@@ -52,24 +52,15 @@ const storeSchema = new mongoose.Schema(
         type: String,
       },
     },
-    OfferBanner: {
-      public_id: {
-        type: String,
-      },
-      url: {
-        type: String,
-      },
-      storeID: {
-        type: Schema.Types.ObjectId,
-        ref: "Admin",
-      },
-    },
     availability: {
       open: {
         type: Boolean,
       },
     },
     restauranttype: {
+      type: String,
+    },
+    cuisine: {
       type: String,
     },
   },
