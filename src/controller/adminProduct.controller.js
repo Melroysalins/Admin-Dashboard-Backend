@@ -5,7 +5,8 @@ import { Product } from "../models/products.model.js";
 import uploadStream from "../utils/uploadStream.js";
 
 const normalizeCategoryName = (name) => {
-  return name.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+  const normalized = name.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+  return normalized.charAt(0).toUpperCase() + normalized.slice(1);
 };
 
 const ProductController = asyncHandler(async (req, res) => {
@@ -156,6 +157,10 @@ const updateParticularProdcut = asyncHandler(async (req, res) => {
 
     let fileUrl = null;
 
+    const parsedQuantity = Array.isArray(quantity)
+      ? parseInt(quantity[0], 10)
+      : parseInt(quantity, 10);
+
     console.log("Entire Data in backend--->", {
       quantity,
       productname,
@@ -220,7 +225,7 @@ const updateParticularProdcut = asyncHandler(async (req, res) => {
 
     // Update fields only if provided
     productToUpdate.productname = productname || productToUpdate.productname;
-    productToUpdate.quantity = Number(quantity) || productToUpdate.quantity;
+    productToUpdate.quantity = parsedQuantity || productToUpdate.quantity;
     productToUpdate.price = Number(price) || productToUpdate.price;
     productToUpdate.description = description || productToUpdate.description;
     productToUpdate.available =
@@ -290,9 +295,39 @@ const getParticularProduct = asyncHandler(async (req, res) => {
   }
 });
 
+const setDeleteProduct = asyncHandler(async (req, res) => {
+  try {
+    const { storeID, _id } = req.body;
+
+    const updatedProduct = await Product.findOneAndUpdate(
+      { storeID },
+      {
+        $pull: {
+          "categoryname.$[].product": { _id },
+        },
+      },
+      { new: true }
+    );
+
+    if (!updatedProduct) {
+      return res.status(404).send({
+        message: "Product not found or invalid store credentials",
+      });
+    }
+
+    return res.status(200).send({
+      status: 200,
+      message: "Product deleted successfully",
+    });
+  } catch (error) {
+    console.log("Error while deleting the product", error);
+  }
+});
+
 export {
   ProductController,
   getallProducts,
   updateParticularProdcut,
   getParticularProduct,
+  setDeleteProduct,
 };

@@ -9,6 +9,8 @@ import {
 import {
   adminStore,
   getStoreDetails,
+  goStoreLive,
+  goStoreOffline,
   updateStore,
   verifyStore,
 } from "../controller/adminstore.controller.js";
@@ -18,6 +20,7 @@ import {
   ProductController,
   getParticularProduct,
   getallProducts,
+  setDeleteProduct,
   updateParticularProdcut,
 } from "../controller/adminProduct.controller.js";
 
@@ -56,5 +59,10 @@ router
   .post(Singleupload, processImage, updateParticularProdcut);
 
 router.route("/admin/getparticularproduct").post(getParticularProduct);
+
+router.route("/admin/storelive").post(goStoreLive);
+router.route("/admin/offline").post(goStoreOffline);
+
+router.route("/admin/deleteproduct").post(setDeleteProduct);
 
 export { router };

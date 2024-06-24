@@ -276,4 +276,65 @@ const verifyStore = asyncHandler(async (req, res) => {
   }
 });
 
-export { adminStore, getStoreDetails, updateStore, verifyStore };
+const goStoreLive = asyncHandler(async (req, res) => {
+  try {
+    const { storeID } = req.body;
+
+    const store = await Store.findOne({ storeID: storeID });
+
+    if (!store) {
+      return res.status(405).send({
+        message: "Invalid store credentials or please setup your store first",
+      });
+    }
+    store.availability.open = true;
+
+    await store.save();
+
+    return res.status(200).send({
+      status: 200,
+      message: "Your Store is Live now!",
+      store,
+    });
+  } catch (error) {
+    console.log("Failed to set the store live. Please try again later.", error);
+  }
+});
+
+const goStoreOffline = asyncHandler(async (req, res) => {
+  try {
+    const { storeID } = req.body;
+
+    const store = await Store.findOne({ storeID: storeID });
+
+    if (!store) {
+      return res.status(405).send({
+        message: "Invalid store credentials or please setup your store first",
+      });
+    }
+
+    store.availability.open = false;
+
+    await store.save();
+
+    return res.status(200).send({
+      status: 200,
+      message: "Your store is now offline",
+      store,
+    });
+  } catch (error) {
+    console.log(
+      "Failed to set the store offline. Please try again later.",
+      error
+    );
+  }
+});
+
+export {
+  adminStore,
+  getStoreDetails,
+  updateStore,
+  verifyStore,
+  goStoreLive,
+  goStoreOffline,
+};
