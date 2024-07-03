@@ -23,6 +23,12 @@ import {
   setDeleteProduct,
   updateParticularProdcut,
 } from "../controller/adminProduct.controller.js";
+import {
+  changeOrderStatus,
+  dashboardOrder,
+  orderFilter,
+  orderedProductList,
+} from "../controller/order.controller.js";
 
 const router = Router();
 
@@ -64,5 +70,13 @@ router.route("/admin/storelive").post(goStoreLive);
 router.route("/admin/offline").post(goStoreOffline);
 
 router.route("/admin/deleteproduct").post(setDeleteProduct);
+
+router.route("/admin/getorder").post(dashboardOrder);
+
+router.route("/admin/getorderedproduct").post(orderedProductList);
+
+router.route("/admin/changestatus").post(changeOrderStatus);
+
+router.route("/admin/orderfilter").post(orderFilter);
 
 export { router };

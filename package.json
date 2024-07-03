@@ -28,6 +28,8 @@
     "prettier": "^3.2.5",
     "randomatic": "^3.1.1",
     "sharp": "^0.33.4",
-    "streamifier": "^0.1.1"
+    "socket.io": "^4.7.5",
+    "streamifier": "^0.1.1",
+    "ws": "^8.17.1"
   }
 }

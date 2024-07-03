@@ -3,6 +3,7 @@ import { Store } from "../models/admin.storeDetails.js";
 import getdataURI from "../utils/getdataURI.js";
 import { Product } from "../models/products.model.js";
 import uploadStream from "../utils/uploadStream.js";
+import mongoose from "mongoose";
 
 const normalizeCategoryName = (name) => {
   const normalized = name.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
@@ -161,16 +162,6 @@ const updateParticularProdcut = asyncHandler(async (req, res) => {
       ? parseInt(quantity[0], 10)
       : parseInt(quantity, 10);
 
-    console.log("Entire Data in backend--->", {
-      quantity,
-      productname,
-      price,
-      description,
-      _id,
-      available,
-      storeID,
-    });
-
     const store = await Store.findOne({ storeID });
 
     if (!store) {
@@ -299,25 +290,32 @@ const setDeleteProduct = asyncHandler(async (req, res) => {
   try {
     const { storeID, _id } = req.body;
 
-    const updatedProduct = await Product.findOneAndUpdate(
+    const product = await Product.findOne({ storeID: storeID });
+
+    if (!product) {
+      return res.status(403).send({
+        message: "No store found, Invalid store credentials",
+      });
+    }
+
+    const success = await Product.updateOne(
       { storeID },
-      {
-        $pull: {
-          "categoryname.$[].product": { _id },
-        },
-      },
-      { new: true }
+      { $pull: { "categoryname.$[].product": { _id } } }
     );
 
-    if (!updatedProduct) {
-      return res.status(404).send({
-        message: "Product not found or invalid store credentials",
+    console.log("success", success);
+
+    if (success.modifiedCount > 0) {
+      return res.status(200).send({
+        message: "Product deleted successfully",
+        status: 200,
+        success,
       });
     }
 
     return res.status(200).send({
-      status: 200,
-      message: "Product deleted successfully",
+      message: "No store found , Invalid store credentials",
+      success,
     });
   } catch (error) {
     console.log("Error while deleting the product", error);
